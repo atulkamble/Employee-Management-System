@@ -1,29 +1,33 @@
 package main
 
 import (
-"database/sql"
-\_ "github.com/lib/pq"
-"log"
-"os"
+	"database/sql"
+	"fmt"
+	"log"
+	"os"
+
+	_ "github.com/lib/pq"
 )
 
-var db \*sql.DB
+var db *sql.DB
 
 func init() {
-dbHost := os.Getenv("DB\_HOST")
-dbUser := os.Getenv("DB\_USER")
-dbPassword := os.Getenv("DB\_PASSWORD")
-dbName := os.Getenv("DB\_NAME")
-dbPort := os.Getenv("DB\_PORT")
+	var err error
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+	)
 
-```
-dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-	dbHost, dbPort, dbUser, dbPassword, dbName)
-var err error
-db, err = sql.Open("postgres", dsn)
-if err != nil {
-	log.Fatalf("Error opening database: %s", err)
-}
-```
+	db, err = sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatalf("Database connection error: %v", err)
+	}
 
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("Database ping error: %v", err)
+	}
 }
